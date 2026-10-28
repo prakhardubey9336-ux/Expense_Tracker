@@ -1,0 +1,31 @@
+{
+  "name": "smartspend-expense-tracker",
+  "version": "2.2.0",
+  "description": "SmartSpend 2.0 \u2014 dual-mode (Individual + Business) personal & small-business finance manager",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/api.test.js && node test/business.test.js && node test/migration.test.js",
+    "test:api": "node test/api.test.js",
+    "test:business": "node test/business.test.js",
+    "test:migration": "node test/migration.test.js",
+    "seed": "node scripts/seed-demo.js",
+    "seed:reset": "node scripts/seed-demo.js --reset",
+    "seed:business": "node scripts/seed-business-demo.js"
+  },
+  "keywords": [
+    "expense-tracker",
+    "nodejs",
+    "express",
+    "sqlite",
+    "chartjs"
+  ],
+  "author": "B.Tech CSE Mini Project",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "express": "^4.21.1"
+  }
+}

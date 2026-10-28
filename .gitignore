@@ -1,0 +1,30 @@
+# Node dependencies (re-installed with `npm install`)
+node_modules/
+
+# Generated SQLite database: created automatically on first run, never commit it
+expense-tracker.db
+expense-tracker.db-wal
+expense-tracker.db-shm
+*.db
+*.db-journal
+# manual backups made before a migration (expense-tracker.db.v2-prephase4-backup)
+*.db.*backup
+expense-tracker.db.v2-*
+
+# Environment / secret files (none are required by this project)
+.env
+.env.*
+
+# Browser tests (tests-ui/): their screenshots, results and optional local install
+tests-ui/out/
+tests-ui/node_modules/
+tests-ui/package.json
+tests-ui/package-lock.json
+
+# Editor and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
