@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SmartSpend — a personal expense tracker that keeps your money clearly organised." />
+  <meta name="theme-color" content="#312e81" />
+  <title>SmartSpend — Your money, clearly organised.</title>
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!--
+    Chart.js is loaded from a LOCAL copy (public/assets/vendor/chart.umd.min.js)
+    so the charts work without an internet connection. If that file is ever
+    missing, the small fallback script below loads it from a CDN instead.
+  -->
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script>
+    if (!window.Chart) {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"><\/script>');
+    }
+  </script>
+</head>
+<body>
+  <!-- ===================================================================
+       SVG icon sprite: one place for every icon used in the app.
+       Referenced with <svg><use href="#i-name"></use></svg>
+       =================================================================== -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" focusable="false">
+    <symbol id="i-logo" viewBox="0 0 24 24">
+      <path d="M12 2.6 21 7v10l-9 4.4L3 17V7l9-4.4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M12 8.2v7.6M9.4 10.4h3.9a1.7 1.7 0 0 1 0 3.4H9.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7.5" height="8" rx="2"/><rect x="13.5" y="3" width="7.5" height="5" rx="2"/>
+      <rect x="3" y="14" width="7.5" height="7" rx="2"/><rect x="13.5" y="11" width="7.5" height="10" rx="2"/>
+    </symbol>
+    <symbol id="i-transactions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 7h13l-3-3M20 17H7l3 3"/><path d="M4 7v3M20 17v-3"/>
+    </symbol>
+    <symbol id="i-budget" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>
+    </symbol>
+    <symbol id="i-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/>
+    </symbol>
+    <symbol id="i-insights" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3Z"/>
+    </symbol>
+    <symbol id="i-income" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 19V5M6 11l6-6 6 6"/>
+    </symbol>
+    <symbol id="i-expense" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M6 13l6 6 6-6"/>
+    </symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16.5 14.5h.01"/>
+    </symbol>
+    <symbol id="i-savings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 18V9M9 18V5M14 18v-6M19 18v-3"/><circle cx="19" cy="8" r="2.4"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"/>
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 20h4L20 8l-4-4L4 16v4Z"/><path d="M14.5 5.5 18.5 9.5"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/><path d="M10 11v5M14 11v5"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M6 6l12 12M18 6 6 18"/>
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+      <path d="M4 7h16M4 12h16M4 17h16"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.6h.01"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m5 13 4.5 4.5L19 7"/>
+    </symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4 3 20h18L12 4Z"/><path d="M12 10v4.5M12 17.6h.01"/>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>
+    </symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-1.8.8-3.2 1.6-4.2.4 1.4 1.4 2.2 2.4 2.2 1.6 0 2.4-1.4 1-7Z"/>
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>
+    </symbol>
+    <symbol id="i-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3.5 9.5V20h17V9.5"/><path d="M2.5 9.5 5 4h14l2.5 5.5a3 3 0 0 1-5.5 1.4 3 3 0 0 1-5.4 0 3 3 0 0 1-5.6-1.4Z"/>
+      <path d="M9.5 20v-5h5v5"/>
+    </symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+      <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>
+    </symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 9a5 5 0 0 1 5-5h9l-3-3M20 15a5 5 0 0 1-5 5H6l3 3"/>
+    </symbol>
+    <symbol id="i-report" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9.5 13h6M9.5 17h4"/>
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4Z"/>
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="8" r="3.2"/><path d="M3 19.5a6 6 0 0 1 12 0"/><path d="M16.5 5.6a3.2 3.2 0 0 1 0 4.8M18 14.2a6 6 0 0 1 3 5.3"/>
+    </symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2.5 7.5h10v9h-10zM12.5 11h4l4 3.2v2.3h-8z"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9.5 12h5M9.5 15.5h5M9.5 19h3"/>
+    </symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9.5 8h5M9.5 12h5"/>
+    </symbol>
+    <symbol id="i-cashflow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 8h13l-3-3M21 16H8l3 3"/><path d="M3 8v3M21 16v-3"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v12M7 11l5 5 5-5"/><path d="M4 20h16"/>
+    </symbol>
+    <symbol id="i-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 8V3h10v5"/><rect x="4" y="8" width="16" height="8" rx="2"/><path d="M7 13h10v8H7z"/>
+    </symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v12h14V8"/><path d="M10 12h4"/>
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.7"/>
+    </symbol>
+    <symbol id="i-money-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/>
+    </symbol>
+  </svg>
+
+  <div class="purpose" id="purposeScreen" hidden role="dialog" aria-modal="true" aria-labelledby="purposeTitle">
+  <div class="purpose-card">
+    <div class="purpose-brand">
+      <span class="brand-mark"><svg aria-hidden="true"><use href="#i-logo"></use></svg></span>
+      <strong>SmartSpend</strong>
+    </div>
+
+    <h1 id="purposeTitle">What will you use SmartSpend for?</h1>
+    <p class="purpose-lead">
+      Pick the book you want to open first. Nothing is created or deleted by this choice — both books
+      exist already, and you can switch between them at any time from the sidebar.
+    </p>
+
+    <div class="purpose-options" role="group" aria-labelledby="purposeTitle">
+      <button type="button" class="purpose-option" data-purpose="individual" aria-pressed="false">
+        <span class="purpose-tick"><svg aria-hidden="true"><use href="#i-check"></use></svg></span>
+        <span class="purpose-icon"><svg aria-hidden="true"><use href="#i-user"></use></svg></span>
+        <h2>Individual</h2>
+        <p>Your own money: salary, rent, food, savings and monthly limits.</p>
+        <ul>
+          <li>Income &amp; expense tracking</li>
+          <li>Monthly and category budgets</li>
+          <li>Savings goals &amp; recurring expenses</li>
+        </ul>
+      </button>
+
+      <button type="button" class="purpose-option" data-purpose="business" aria-pressed="false">
+        <span class="purpose-tick"><svg aria-hidden="true"><use href="#i-check"></use></svg></span>
+        <span class="purpose-icon"><svg aria-hidden="true"><use href="#i-store"></use></svg></span>
+        <h2>Business</h2>
+        <p>Bookkeeping for a shop, agency or freelance practice.</p>
+        <ul>
+          <li>Invoices with part payments</li>
+          <li>Customers, vendors &amp; bills</li>
+          <li>Cash flow and tax estimates</li>
+        </ul>
+      </button>
+    </div>
+
+    <div class="purpose-foot">
+      <p>
+        Stored in this browser only — SmartSpend has no login and no password, so this is a
+        convenience choice, not security.
+      </p>
+      <button class="btn btn-primary" type="button" id="purposeContinue" disabled>
+        <span>Continue</span>
+        <svg aria-hidden="true"><use href="#i-check"></use></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app-shell">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <span class="brand-mark"><svg aria-hidden="true"><use href="#i-logo"></use></svg></span>
+        <span class="brand-text">
+          <strong>SmartSpend</strong>
+          <small>Your money, clearly organised.</small>
+        </span>
+        <button class="icon-btn sidebar-close" id="sidebarClose" type="button" aria-label="Close navigation">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+
+      <!-- ============ MODE SWITCHER (Individual / Business) ============ -->
+      <div class="mode-switcher" role="group" aria-label="Choose mode">
+        <button class="mode-btn is-active" type="button" data-mode="individual" aria-pressed="true">
+          <svg aria-hidden="true"><use href="#i-user"></use></svg>
+          <span>Individual</span>
+        </button>
+        <button class="mode-btn" type="button" data-mode="business" aria-pressed="false">
+          <svg aria-hidden="true"><use href="#i-store"></use></svg>
+          <span>Business</span>
+        </button>
+      </div>
+      <p class="mode-caption" id="modeCaption">Personal finance book</p>
+
+      <!-- Individual (personal finance) navigation -->
+      <nav class="nav" id="nav" data-mode-nav="individual" aria-label="Individual navigation">
+        <a class="nav-link is-active" href="#dashboard" data-view="dashboard">
+          <svg aria-hidden="true"><use href="#i-dashboard"></use></svg><span>Dashboard</span>
+        </a>
+        <a class="nav-link" href="#transactions" data-view="transactions">
+          <svg aria-hidden="true"><use href="#i-transactions"></use></svg><span>Transactions</span>
+        </a>
+        <a class="nav-link" href="#budget" data-view="budget">
+          <svg aria-hidden="true"><use href="#i-budget"></use></svg><span>Budgets</span>
+        </a>
+        <a class="nav-link" href="#goals" data-view="goals">
+          <svg aria-hidden="true"><use href="#i-target"></use></svg><span>Savings Goals</span>
+        </a>
+        <a class="nav-link" href="#recurring" data-view="recurring">
+          <svg aria-hidden="true"><use href="#i-repeat"></use></svg><span>Recurring</span>
+        </a>
+        <a class="nav-link" href="#analytics" data-view="analytics">
+          <svg aria-hidden="true"><use href="#i-analytics"></use></svg><span>Analytics</span>
+        </a>
+        <a class="nav-link" href="#insights" data-view="insights">
+          <svg aria-hidden="true"><use href="#i-insights"></use></svg><span>Insights</span>
+        </a>
+        <a class="nav-link" href="#reports" data-view="reports">
+          <svg aria-hidden="true"><use href="#i-report"></use></svg><span>Reports</span>
+        </a>
+        <a class="nav-link" href="#settings" data-view="settings">
+          <svg aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span>
+        </a>
+      </nav>
+
+      <!-- Business (small business finance) navigation -->
+      <nav class="nav" data-mode-nav="business" aria-label="Business navigation" hidden>
+        <a class="nav-link" href="#business-dashboard" data-view="business-dashboard">
+          <svg aria-hidden="true"><use href="#i-dashboard"></use></svg><span>Business Dashboard</span>
+        </a>
+        <a class="nav-link" href="#transactions" data-view="transactions">
+          <svg aria-hidden="true"><use href="#i-transactions"></use></svg><span>Transactions</span>
+        </a>
+        <a class="nav-link" href="#customers" data-view="customers">
+          <svg aria-hidden="true"><use href="#i-users"></use></svg><span>Customers</span>
+        </a>
+        <a class="nav-link" href="#vendors" data-view="vendors">
+          <svg aria-hidden="true"><use href="#i-truck"></use></svg><span>Vendors</span>
+        </a>
+        <a class="nav-link" href="#invoices" data-view="invoices">
+          <svg aria-hidden="true"><use href="#i-file"></use></svg><span>Invoices</span>
+        </a>
+        <a class="nav-link" href="#bills" data-view="bills">
+          <svg aria-hidden="true"><use href="#i-receipt"></use></svg><span>Bills &amp; Payables</span>
+        </a>
+        <a class="nav-link" href="#cashflow" data-view="cashflow">
+          <svg aria-hidden="true"><use href="#i-cashflow"></use></svg><span>Cash Flow</span>
+        </a>
+        <a class="nav-link" href="#business-reports" data-view="business-reports">
+          <svg aria-hidden="true"><use href="#i-report"></use></svg><span>Reports</span>
+        </a>
+        <a class="nav-link" href="#settings" data-view="settings">
+          <svg aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-note">
+          <svg aria-hidden="true"><use href="#i-info"></use></svg>
+          <p>Local single-user app. Data is stored in <code>expense-tracker.db</code> on this computer.</p>
+        </div>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-column">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+          <svg aria-hidden="true"><use href="#i-menu"></use></svg>
+        </button>
+
+        <div class="page-heading">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">An overview of your money in one place.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <label class="month-picker" for="globalMonth">
+            <svg aria-hidden="true"><use href="#i-calendar"></use></svg>
+            <span class="sr-only">Selected month</span>
+            <input type="month" id="globalMonth" />
+          </label>
+          <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch to dark theme" title="Switch theme">
+            <svg class="icon-sun" aria-hidden="true"><use href="#i-sun"></use></svg>
+            <svg class="icon-moon" aria-hidden="true"><use href="#i-moon"></use></svg>
+          </button>
+          <button class="btn btn-primary" id="openAddBtn" type="button">
+            <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>Add Transaction</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="main" tabindex="-1">
+        <!-- ============================================================
+             VIEW: DASHBOARD
+             ============================================================ -->
+        <section class="view is-active" id="view-dashboard" data-view="dashboard" aria-labelledby="pageTitle">
+          <div class="stat-grid" id="statGrid">
+            <!-- Summary cards are filled from the API by app.js -->
+            <article class="card stat-card" data-stat="income">
+              <div class="stat-top">
+                <span class="stat-icon tone-income"><svg aria-hidden="true"><use href="#i-income"></use></svg></span>
+                <span class="stat-label">Total Income</span>
+              </div>
+              <p class="stat-value skeleton" id="statIncome">&nbsp;</p>
+              <p class="stat-note" id="statIncomeNote">—</p>
+            </article>
+            <article class="card stat-card" data-stat="expense">
+              <div class="stat-top">
+                <span class="stat-icon tone-expense"><svg aria-hidden="true"><use href="#i-expense"></use></svg></span>
+                <span class="stat-label">Total Expenses</span>
+              </div>
+              <p class="stat-value skeleton" id="statExpense">&nbsp;</p>
+              <p class="stat-note" id="statExpenseNote">—</p>
+            </article>
+            <article class="card stat-card" data-stat="balance">
+              <div class="stat-top">
+                <span class="stat-icon tone-balance"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span>
+                <span class="stat-label">Available Balance</span>
+              </div>
+              <p class="stat-value skeleton" id="statBalance">&nbsp;</p>
+              <p class="stat-note" id="statBalanceNote">—</p>
+            </article>
+            <article class="card stat-card" data-stat="savings">
+              <div class="stat-top">
+                <span class="stat-icon tone-savings"><svg aria-hidden="true"><use href="#i-savings"></use></svg></span>
+                <span class="stat-label">Savings Rate</span>
+              </div>
+              <p class="stat-value skeleton" id="statSavings">&nbsp;</p>
+              <p class="stat-note" id="statSavingsNote">—</p>
+            </article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <!-- Monthly bar chart -->
+            <article class="card chart-card">
+              <div class="card-head">
+                <div>
+                  <h2>Income vs Expenses</h2>
+                  <p class="card-sub" id="monthlyChartSub">Last 6 months</p>
+                </div>
+                <span class="pill pill-soft">Last 6 months</span>
+              </div>
+              <div class="chart-wrap" id="monthlyChartWrap">
+                <canvas id="monthlyChart" height="230" aria-label="Bar chart comparing monthly income and expenses" role="img"></canvas>
+                <div class="chart-empty" id="monthlyChartEmpty" hidden>
+                  <svg aria-hidden="true"><use href="#i-analytics"></use></svg>
+                  <p><strong>No chart data yet</strong></p>
+                  <p>Add a transaction to see your monthly income and expenses.</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Category doughnut -->
+            <article class="card chart-card">
+              <div class="card-head">
+                <div>
+                  <h2>Spending by Category</h2>
+                  <p class="card-sub" id="categoryChartSub">Selected month</p>
+                </div>
+              </div>
+              <div class="chart-wrap chart-wrap-doughnut" id="categoryChartWrap">
+                <canvas id="categoryChart" height="230" aria-label="Doughnut chart of expenses by category" role="img"></canvas>
+                <div class="chart-empty" id="categoryChartEmpty" hidden>
+                  <svg aria-hidden="true"><use href="#i-insights"></use></svg>
+                  <p><strong>No expenses this month</strong></p>
+                  <p>Category breakdown appears once you record an expense.</p>
+                </div>
+              </div>
+              <div class="legend" id="categoryLegend"></div>
+            </article>
+          </div>
+
+          <div class="grid grid-2">
+            <!-- Budget progress -->
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Monthly Budget</h2>
+                  <p class="card-sub" id="dashBudgetSub">—</p>
+                </div>
+                <a class="link-btn" href="#budget" data-goto="budget">Manage</a>
+              </div>
+              <div id="dashBudget">
+                <div class="budget-figures">
+                  <div><span class="mini-label">Budget</span><strong id="dashBudgetAmount">₹0</strong></div>
+                  <div><span class="mini-label">Spent</span><strong id="dashBudgetSpent">₹0</strong></div>
+                  <div><span class="mini-label">Remaining</span><strong id="dashBudgetRemaining">₹0</strong></div>
+                </div>
+                <div class="progress" role="progressbar" aria-labelledby="dashBudgetLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dashBudgetBarWrap">
+                  <div class="progress-bar" id="dashBudgetBar" style="width:0%"></div>
+                </div>
+                <p class="progress-caption" id="dashBudgetLabel">No budget set for this month.</p>
+                <p class="progress-caption" id="dashBudgetDaily"></p>
+              </div>
+              <div class="empty-inline" id="dashBudgetEmpty" hidden>
+                <p>No budget set for this month yet.</p>
+                <a class="btn btn-ghost btn-sm" href="#budget" data-goto="budget">Set a budget</a>
+              </div>
+            </article>
+
+            <!-- Highest category + insights -->
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>This Month at a Glance</h2>
+                  <p class="card-sub" id="glanceSub">—</p>
+                </div>
+              </div>
+              <div class="glance" id="glance">
+                <div class="glance-top" id="glanceTop">
+                  <span class="glance-icon"><svg aria-hidden="true"><use href="#i-flame"></use></svg></span>
+                  <div>
+                    <span class="mini-label">Highest spending category</span>
+                    <strong id="glanceTopCategory">—</strong>
+                    <span class="mini-label" id="glanceTopAmount">—</span>
+                  </div>
+                </div>
+                <ul class="insight-mini" id="dashInsights"></ul>
+              </div>
+            </article>
+          </div>
+
+          <!-- Recent transactions -->
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2>Recent Transactions</h2>
+                <p class="card-sub">Latest five entries from your database</p>
+              </div>
+              <a class="link-btn" href="#transactions" data-goto="transactions">View all</a>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Type</th>
+                    <th scope="col" class="num">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="recentBody">
+                  <tr><td colspan="5"><div class="loading-row"><span class="spinner"></span>Loading transactions…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="recentEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-transactions"></use></svg>
+              <h3>No transactions yet</h3>
+              <p>Record your first income or expense to bring this dashboard to life.</p>
+              <button class="btn btn-primary btn-sm" type="button" data-action="add">Add your first transaction</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: TRANSACTIONS
+             ============================================================ -->
+        <section class="view" id="view-transactions" data-view="transactions" aria-label="Transactions">
+          <article class="card filters-card">
+            <div class="card-head">
+              <div>
+                <h2>Search &amp; Filters</h2>
+                <p class="card-sub">Filters run against the database, not just the visible rows.</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" type="button" id="clearFilters">Clear filters</button>
+            </div>
+
+            <div class="filter-presets" role="group" aria-label="Quick date ranges">
+              <span class="label">Quick range</span>
+              <button class="preset-chip" type="button" data-preset="this-month">This month</button>
+              <button class="preset-chip" type="button" data-preset="last-month">Last month</button>
+              <button class="preset-chip" type="button" data-preset="last-30">Last 30 days</button>
+              <button class="preset-chip" type="button" data-preset="this-year">This year</button>
+              <button class="preset-chip" type="button" data-preset="all">All time</button>
+            </div>
+
+            <form class="filters" id="filterForm" autocomplete="off">
+              <div class="field field-search">
+                <label for="fSearch">Search</label>
+                <span class="input-wrap">
+                  <svg aria-hidden="true"><use href="#i-search"></use></svg>
+                  <input type="search" id="fSearch" name="search" placeholder="Title, category or notes" maxlength="100" />
+                </span>
+              </div>
+              <div class="field">
+                <label for="fCategory">Category</label>
+                <select id="fCategory" name="category">
+                  <option value="">All categories</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="fType">Type</label>
+                <select id="fType" name="type">
+                  <option value="">All types</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="fMonth">Month</label>
+                <input type="month" id="fMonth" name="month" />
+              </div>
+              <div class="field">
+                <label for="fFrom">From date</label>
+                <input type="date" id="fFrom" name="from" />
+              </div>
+              <div class="field">
+                <label for="fTo">To date</label>
+                <input type="date" id="fTo" name="to" />
+              </div>
+            </form>
+
+            <p class="filter-summary" id="filterSummary" aria-live="polite"></p>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2>All Transactions</h2>
+                <p class="card-sub" id="txCountLabel">—</p>
+              </div>
+              <div class="inline-actions">
+                <button class="btn btn-ghost btn-sm" type="button" id="exportTxListBtn">
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Export CSV</span>
+                </button>
+                <button class="btn btn-primary btn-sm" type="button" data-action="add">
+                  <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>Add</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-scroll">
+              <table class="data-table tx-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Type</th>
+                    <th scope="col" class="biz-col">Customer / vendor</th>
+                    <th scope="col" class="num">Amount</th>
+                    <th scope="col" class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="txBody">
+                  <tr><td colspan="7"><div class="loading-row"><span class="spinner"></span>Loading transactions…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="empty-state" id="txEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-transactions"></use></svg>
+              <h3 id="txEmptyTitle">No transactions yet</h3>
+              <p id="txEmptyText">Start by adding your first income or expense.</p>
+              <button class="btn btn-primary btn-sm" type="button" data-action="add">Add a transaction</button>
+            </div>
+
+            <div class="table-footer" id="txFooter" hidden>
+              <span id="txShown"></span>
+              <button class="btn btn-ghost btn-sm" type="button" id="loadMoreBtn">Load more</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: BUDGET
+             ============================================================ -->
+        <section class="view" id="view-budget" data-view="budget" aria-label="Monthly budget">
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Set Monthly Budget</h2>
+                  <p class="card-sub">Each month keeps its own budget.</p>
+                </div>
+              </div>
+
+              <form id="budgetForm" novalidate>
+                <div class="field">
+                  <label for="budgetMonth">Month</label>
+                  <input type="month" id="budgetMonth" name="month" required />
+                  <p class="field-error" id="budgetMonthError" role="alert"></p>
+                </div>
+                <div class="field">
+                  <label for="budgetAmount">Budget amount (₹)</label>
+                  <input type="number" id="budgetAmount" name="amount" min="0" step="0.01" placeholder="e.g. 15000" required />
+                  <p class="field-hint">Enter 0 to clear the limit. Negative values are not allowed.</p>
+                  <p class="field-error" id="budgetAmountError" role="alert"></p>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit" id="budgetSaveBtn">Save Budget</button>
+                  <button class="btn btn-ghost" type="button" id="budgetRemoveBtn" hidden>Remove budget</button>
+                </div>
+              </form>
+
+              <div class="budget-summary" id="budgetSummary">
+                <div class="budget-ring" id="budgetRing">
+                  <span class="budget-ring-value" id="budgetPercent">0%</span>
+                  <span class="budget-ring-label">used</span>
+                </div>
+                <div class="budget-summary-figures">
+                  <div><span class="mini-label">Budget</span><strong id="budgetAmountOut">₹0</strong></div>
+                  <div><span class="mini-label">Spent</span><strong id="budgetSpentOut">₹0</strong></div>
+                  <div><span class="mini-label">Remaining</span><strong id="budgetRemainingOut">₹0</strong></div>
+                  <div><span class="mini-label">Transactions</span><strong id="budgetCountOut">0</strong></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Budget Progress</h2>
+                  <p class="card-sub" id="budgetProgressSub">—</p>
+                </div>
+              </div>
+
+              <div class="progress progress-lg" role="progressbar" aria-labelledby="budgetProgressLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="budgetBarWrap">
+                <div class="progress-bar" id="budgetBar" style="width:0%"></div>
+              </div>
+              <p class="progress-caption" id="budgetProgressLabel">No budget set for this month.</p>
+
+              <div class="budget-bar-legend">
+                <span><i class="dot dot-safe"></i>Within budget</span>
+                <span><i class="dot dot-warn"></i>75% or more used</span>
+                <span><i class="dot dot-over"></i>Over budget</span>
+              </div>
+
+              <h3 class="sub-heading">Saved budgets</h3>
+              <ul class="budget-history" id="budgetHistory">
+                <li class="muted">Loading…</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: ANALYTICS
+             ============================================================ -->
+        <section class="view" id="view-analytics" data-view="analytics" aria-label="Expense analytics">
+          <div class="grid grid-2">
+            <article class="card chart-card">
+              <div class="card-head">
+                <div>
+                  <h2>Expenses by Category</h2>
+                  <p class="card-sub" id="analyticsMonthSub">—</p>
+                </div>
+              </div>
+              <div class="chart-wrap chart-wrap-doughnut" id="analyticsDoughnutWrap">
+                <canvas id="analyticsDoughnut" height="250" aria-label="Doughnut chart of expenses by category for the selected month" role="img"></canvas>
+                <div class="chart-empty" id="analyticsDoughnutEmpty" hidden>
+                  <svg aria-hidden="true"><use href="#i-analytics"></use></svg>
+                  <p><strong>No expenses recorded</strong></p>
+                  <p>There is nothing to visualise for this month yet.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="card chart-card">
+              <div class="card-head">
+                <div>
+                  <h2>Monthly Income vs Expenses</h2>
+                  <p class="card-sub" id="analyticsBarSub">Last 6 months</p>
+                </div>
+              </div>
+              <div class="chart-wrap" id="analyticsBarWrap">
+                <canvas id="analyticsBar" height="250" aria-label="Bar chart comparing monthly income and expenses" role="img"></canvas>
+                <div class="chart-empty" id="analyticsBarEmpty" hidden>
+                  <svg aria-hidden="true"><use href="#i-analytics"></use></svg>
+                  <p><strong>No monthly data yet</strong></p>
+                  <p>Add transactions across a few months to compare them.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2>Category Breakdown</h2>
+                <p class="card-sub" id="analyticsTableSub">—</p>
+              </div>
+              <span class="pill pill-soft" id="analyticsTotalPill">Total ₹0</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table category-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col" class="num">Transactions</th>
+                    <th scope="col" class="num">Amount</th>
+                    <th scope="col">Share of spending</th>
+                  </tr>
+                </thead>
+                <tbody id="categoryTableBody">
+                  <tr><td colspan="4"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="categoryTableEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-analytics"></use></svg>
+              <h3>No expenses this month</h3>
+              <p>Category totals will appear here as soon as you record an expense.</p>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: INSIGHTS
+             ============================================================ -->
+        <section class="view" id="view-insights" data-view="insights" aria-label="Spending insights">
+          <div class="insights-layout">
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Spending Insights</h2>
+                  <p class="card-sub" id="insightsSub">Generated from your saved records.</p>
+                </div>
+              </div>
+              <ul class="insight-list" id="insightList">
+                <li class="loading-row"><span class="spinner"></span>Analysing your data…</li>
+              </ul>
+            </article>
+
+            <aside class="card side-stats">
+              <div class="card-head">
+                <div><h2>Month Snapshot</h2><p class="card-sub" id="snapshotSub">—</p></div>
+              </div>
+              <dl class="stat-list" id="snapshotList">
+                <div><dt>Income</dt><dd id="snapIncome">₹0</dd></div>
+                <div><dt>Expenses</dt><dd id="snapExpense">₹0</dd></div>
+                <div><dt>Balance</dt><dd id="snapBalance">₹0</dd></div>
+                <div><dt>Savings rate</dt><dd id="snapSavings">0%</dd></div>
+                <div><dt>Transactions</dt><dd id="snapCount">0</dd></div>
+                <div><dt>Highest category</dt><dd id="snapTop">—</dd></div>
+              </dl>
+              <p class="helper-note">
+                Insights are simple rule-based messages calculated from the records stored in SQLite.
+                They are guidance only — not financial advice.
+              </p>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: SAVINGS GOALS (individual)
+             ============================================================ -->
+        <section class="view" id="view-goals" data-view="goals" aria-label="Savings goals">
+          <div class="grid grid-2-1">
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Savings Goals</h2>
+                  <p class="card-sub">Money you are putting aside, tracked from real contributions.</p>
+                </div>
+                <button class="btn btn-primary btn-sm" type="button" id="addGoalBtn">
+                  <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>New goal</span>
+                </button>
+              </div>
+              <div id="goalList"><div class="loading-row"><span class="spinner"></span>Loading goals…</div></div>
+              <div class="empty-state" id="goalsEmpty" hidden>
+                <svg aria-hidden="true"><use href="#i-target"></use></svg>
+                <h3>No savings goals yet</h3>
+                <p>Create a goal like “New laptop ₹40,000” and add money to it whenever you save.</p>
+              </div>
+            </article>
+
+            <aside class="card side-stats">
+              <div class="card-head"><div><h2>Saved so far</h2><p class="card-sub">Across all active goals</p></div></div>
+              <p class="goal-total" id="goalTotalSaved">₹0</p>
+              <dl class="stat-list" id="goalTotals">
+                <div><dt>Target</dt><dd id="goalTotalTarget">₹0</dd></div>
+                <div><dt>Still to save</dt><dd id="goalTotalRemaining">₹0</dd></div>
+                <div><dt>Goals reached</dt><dd id="goalTotalComplete">0</dd></div>
+              </dl>
+              <p class="helper-note">
+                Contributions are stored as their own records, so a goal's progress is always the sum
+                of what you actually put in — it cannot drift.
+              </p>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: RECURRING EXPENSES (individual)
+             ============================================================ -->
+        <section class="view" id="view-recurring" data-view="recurring" aria-label="Recurring expenses">
+          <article class="card" style="margin-bottom:18px">
+            <div class="card-head">
+              <div>
+                <h2>Recurring Expenses</h2>
+                <p class="card-sub">Rules for regular payments such as rent or subscriptions.</p>
+              </div>
+              <button class="btn btn-primary btn-sm" type="button" id="addRuleBtn">
+                <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>New rule</span>
+              </button>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th><th scope="col">Category</th><th scope="col">Frequency</th>
+                    <th scope="col">Next due</th><th scope="col" class="num">Amount</th>
+                    <th scope="col" class="num">Generated</th><th scope="col" class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ruleBody">
+                  <tr><td colspan="7"><div class="loading-row"><span class="spinner"></span>Loading rules…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="rulesEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-repeat"></use></svg>
+              <h3>No recurring rules</h3>
+              <p>Add a rule once and SmartSpend will tell you what is coming up each month.</p>
+            </div>
+          </article>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Upcoming Expected Payments</h2>
+                  <p class="card-sub" id="upcomingSub">Next 45 days · nothing is created automatically</p>
+                </div>
+              </div>
+              <ul class="timeline" id="upcomingList">
+                <li class="muted">Loading…</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div><h2>Generate Due Entries</h2><p class="card-sub">Safe to press more than once</p></div></div>
+              <p class="card-sub" style="margin-bottom:12px">
+                This creates a real transaction for every date that has passed. It is
+                <strong>idempotent</strong>: a rule can only ever produce one entry per date, so
+                pressing the button twice cannot duplicate anything.
+              </p>
+              <button class="btn btn-primary" type="button" id="runRecurringBtn">Generate due entries</button>
+              <p class="filter-summary" id="recurringRunResult"></p>
+            </article>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: REPORTS (individual)
+             ============================================================ -->
+        <section class="view" id="view-reports" data-view="reports" aria-label="Reports">
+          <article class="card" style="margin-bottom:18px">
+            <div class="card-head">
+              <div><h2>Report Range</h2><p class="card-sub">Applies to the tables and exports below.</p></div>
+              <div class="inline-actions">
+                <a class="btn btn-ghost btn-sm" id="exportTxBtn" href="/api/export/transactions.csv" download>
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Transactions CSV</span>
+                </a>
+                <a class="btn btn-ghost btn-sm" id="exportSummaryBtn" href="/api/export/monthly-summary.csv" download>
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Monthly summary CSV</span>
+                </a>
+              </div>
+            </div>
+            <form class="filters filters-3" id="reportFilterForm">
+              <div class="field"><label for="reportFrom">From date</label><input type="date" id="reportFrom" /></div>
+              <div class="field"><label for="reportTo">To date</label><input type="date" id="reportTo" /></div>
+              <div class="field"><label for="reportMonth">Quick pick</label>
+                <select id="reportMonth"><option value="">Custom range</option></select>
+              </div>
+            </form>
+          </article>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head"><div><h2>Monthly Summary</h2><p class="card-sub">Income, expenses and savings rate by month</p></div></div>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Month</th><th class="num" scope="col">Income</th><th class="num" scope="col">Expenses</th><th class="num" scope="col">Net</th><th class="num" scope="col">Savings rate</th></tr></thead>
+                  <tbody id="reportMonthlyBody"><tr><td colspan="5"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+              <div class="empty-state" id="reportMonthlyEmpty" hidden>
+                <svg aria-hidden="true"><use href="#i-report"></use></svg>
+                <h3>No data in this range</h3>
+                <p>Try a wider date range or add some transactions.</p>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div><h2>Category Breakdown</h2><p class="card-sub" id="reportCategorySub">Expenses in the selected range</p></div></div>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Category</th><th class="num" scope="col">Entries</th><th class="num" scope="col">Amount</th><th scope="col">Share</th></tr></thead>
+                  <tbody id="reportCategoryBody"><tr><td colspan="4"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+              <div class="empty-state" id="reportCategoryEmpty" hidden>
+                <svg aria-hidden="true"><use href="#i-analytics"></use></svg>
+                <h3>No expenses in this range</h3>
+                <p>Choose a different range to see category totals.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: BUSINESS DASHBOARD
+             ============================================================ -->
+        <section class="view" id="view-business-dashboard" data-view="business-dashboard" aria-label="Business dashboard">
+          <div class="notice-banner">
+            <svg aria-hidden="true"><use href="#i-info"></use></svg>
+            <div>
+              <strong>Basic bookkeeping estimates — not audited financial statements.</strong>
+              <span>Revenue and expenses come from the transactions you recorded. Outstanding invoices and bills are shown separately and are <em>not</em> counted as money received or paid.</span>
+            </div>
+          </div>
+
+          <div class="card biz-range">
+            <form class="filters filters-4" id="bizRangeForm">
+              <div class="field"><label for="bizFrom">From date</label><input type="date" id="bizFrom" /></div>
+              <div class="field"><label for="bizTo">To date</label><input type="date" id="bizTo" /></div>
+              <div class="field"><label for="bizQuickMonth">Quick pick</label><select id="bizQuickMonth"><option value="">All time</option></select></div>
+              <div class="field field-inline">
+                <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+                <button class="btn btn-ghost btn-sm" type="button" id="bizClearRange">Reset</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="stat-grid stat-grid-business" id="bizStats">
+            <article class="card stat-card" data-stat="revenue">
+              <div class="stat-top"><span class="stat-icon tone-income"><svg aria-hidden="true"><use href="#i-money-in"></use></svg></span><span class="stat-label">Revenue</span></div>
+              <p class="stat-value skeleton" id="bizRevenue">&nbsp;</p>
+              <p class="stat-note" id="bizRevenueNote">Recorded sales / income</p>
+            </article>
+            <article class="card stat-card" data-stat="expense">
+              <div class="stat-top"><span class="stat-icon tone-expense"><svg aria-hidden="true"><use href="#i-expense"></use></svg></span><span class="stat-label">Business Expenses</span></div>
+              <p class="stat-value skeleton" id="bizExpenses">&nbsp;</p>
+              <p class="stat-note" id="bizExpensesNote">Recorded business costs</p>
+            </article>
+            <article class="card stat-card" data-stat="profit">
+              <div class="stat-top"><span class="stat-icon tone-balance"><svg aria-hidden="true"><use href="#i-savings"></use></svg></span><span class="stat-label">Net Profit</span></div>
+              <p class="stat-value skeleton" id="bizProfit">&nbsp;</p>
+              <p class="stat-note" id="bizProfitNote">Revenue − expenses</p>
+            </article>
+            <article class="card stat-card" data-stat="receivable">
+              <div class="stat-top"><span class="stat-icon tone-savings"><svg aria-hidden="true"><use href="#i-file"></use></svg></span><span class="stat-label">Outstanding (customers)</span></div>
+              <p class="stat-value skeleton" id="bizReceivable">&nbsp;</p>
+              <p class="stat-note" id="bizReceivableNote">Invoices issued, not yet paid</p>
+            </article>
+            <article class="card stat-card" data-stat="payable">
+              <div class="stat-top"><span class="stat-icon tone-expense"><svg aria-hidden="true"><use href="#i-receipt"></use></svg></span><span class="stat-label">Outstanding (vendors)</span></div>
+              <p class="stat-value skeleton" id="bizPayable">&nbsp;</p>
+              <p class="stat-note" id="bizPayableNote">Bills received, not yet paid</p>
+            </article>
+            <article class="card stat-card" data-stat="cash">
+              <div class="stat-top"><span class="stat-icon tone-balance"><svg aria-hidden="true"><use href="#i-cashflow"></use></svg></span><span class="stat-label">Net Cash Flow</span></div>
+              <p class="stat-value skeleton" id="bizCash">&nbsp;</p>
+              <p class="stat-note" id="bizCashNote">Money in − money out</p>
+            </article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <article class="card chart-card">
+              <div class="card-head">
+                <div><h2>Revenue vs Expenses</h2><p class="card-sub" id="bizTrendSub">Last 6 months</p></div>
+                <div class="chart-toggle" role="group" aria-label="Chart type">
+                  <button class="chart-toggle-btn is-active" type="button" data-biz-chart="bar">Revenue</button>
+                  <button class="chart-toggle-btn" type="button" data-biz-chart="profit">Profit trend</button>
+                </div>
+              </div>
+              <div class="chart-wrap" id="bizTrendWrap">
+                <canvas id="bizTrendChart" height="240" aria-label="Revenue versus expenses by month" role="img"></canvas>
+                <div class="chart-empty" id="bizTrendEmpty" hidden>
+                  <svg aria-hidden="true"><use href="#i-analytics"></use></svg>
+                  <p><strong>No business data yet</strong></p>
+                  <p>Record a sale or an expense to see the chart.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="card chart-card">
+              <div class="card-head"><div><h2>Expense Breakdown</h2><p class="card-sub" id="bizBreakdownSub">By category</p></div></div>
+              <div class="chart-wrap chart-wrap-doughnut" id="bizDoughnutWrap">
+                <canvas id="bizDoughnut" height="230" aria-label="Business expenses by category" role="img"></canvas>
+                <div class="chart-empty" id="bizDoughnutEmpty" hidden>
+                  <svg aria-hidden="true"><use href="#i-insights"></use></svg>
+                  <p><strong>No expenses in this range</strong></p>
+                  <p>Category breakdown appears once you record an expense.</p>
+                </div>
+              </div>
+              <div class="legend" id="bizLegend"></div>
+            </article>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head">
+                <div><h2>Recent Sales</h2><p class="card-sub">Latest income entries</p></div>
+                <a class="link-btn" href="#transactions" data-goto="transactions">View all</a>
+              </div>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Description</th><th scope="col">Date</th><th class="num" scope="col">Amount</th></tr></thead>
+                  <tbody id="bizRecentSales"><tr><td colspan="3"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+              <div class="empty-state" id="bizRecentSalesEmpty" hidden>
+                <p class="muted">No sales recorded yet. Add an income transaction with the category “Sales”.</p>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head">
+                <div><h2>Recent Expenses</h2><p class="card-sub">Latest business costs</p></div>
+                <a class="link-btn" href="#transactions" data-goto="transactions">View all</a>
+              </div>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Description</th><th scope="col">Category</th><th class="num" scope="col">Amount</th></tr></thead>
+                  <tbody id="bizRecentExpenses"><tr><td colspan="3"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+              <div class="empty-state" id="bizRecentExpensesEmpty" hidden>
+                <p class="muted">No business expenses recorded yet.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Receivables Aging</h2>
+                  <p class="card-sub">How long your unpaid invoices have been waiting</p>
+                </div>
+              </div>
+              <div class="aging-list" id="bizAgingList"></div>
+              <p class="aging-note" id="bizAgingNote">Nothing outstanding right now.</p>
+            </article>
+
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Top Customers</h2>
+                  <p class="card-sub">By invoiced value, all time</p>
+                </div>
+                <a class="link-btn" href="#customers" data-goto="customers">All customers</a>
+              </div>
+              <div class="rank-list" id="bizTopCustomers"></div>
+              <div class="empty-inline" id="bizTopCustomersEmpty" hidden>
+                <p>No invoices yet — top customers appear after your first one.</p>
+                <a class="btn btn-ghost btn-sm" href="#invoices" data-goto="invoices">Create an invoice</a>
+              </div>
+            </article>
+          </div>
+
+          <article class="card">
+            <div class="card-head"><div><h2>Needs Attention</h2><p class="card-sub">Overdue invoices and bills</p></div></div>
+            <div id="bizAttention"><p class="muted">Loading…</p></div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: CUSTOMERS
+             ============================================================ -->
+        <section class="view" id="view-customers" data-view="customers" aria-label="Customers">
+          <article class="card">
+            <div class="card-head">
+              <div><h2>Customers</h2><p class="card-sub" id="customersSub">People and businesses you invoice.</p></div>
+              <div class="inline-actions">
+                <label class="switch-label"><input type="checkbox" id="showArchivedCustomers" /> Show archived</label>
+                <button class="btn btn-primary btn-sm" type="button" id="addCustomerBtn">
+                  <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>Add customer</span>
+                </button>
+              </div>
+            </div>
+            <div class="field field-search" style="max-width:320px">
+              <label for="customerSearch">Search customers</label>
+              <span class="input-wrap">
+                <svg aria-hidden="true"><use href="#i-search"></use></svg>
+                <input type="search" id="customerSearch" placeholder="Name, email or phone" />
+              </span>
+            </div>
+            <div class="table-scroll" style="margin-top:12px">
+              <table class="data-table">
+                <thead>
+                  <tr><th scope="col">Name</th><th scope="col">Contact</th><th scope="col">Phone</th>
+                  <th class="num" scope="col">Invoices</th><th class="num" scope="col">Outstanding</th>
+                  <th class="actions-col" scope="col">Actions</th></tr>
+                </thead>
+                <tbody id="customerBody"><tr><td colspan="6"><div class="loading-row"><span class="spinner"></span>Loading customers…</div></td></tr></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="customersEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-users"></use></svg>
+              <h3>No customers yet</h3>
+              <p>Add your first customer before creating an invoice.</p>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: VENDORS
+             ============================================================ -->
+        <section class="view" id="view-vendors" data-view="vendors" aria-label="Vendors">
+          <article class="card">
+            <div class="card-head">
+              <div><h2>Vendors</h2><p class="card-sub" id="vendorsSub">Suppliers you receive bills from.</p></div>
+              <div class="inline-actions">
+                <label class="switch-label"><input type="checkbox" id="showArchivedVendors" /> Show archived</label>
+                <button class="btn btn-primary btn-sm" type="button" id="addVendorBtn">
+                  <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>Add vendor</span>
+                </button>
+              </div>
+            </div>
+            <div class="field field-search" style="max-width:320px">
+              <label for="vendorSearch">Search vendors</label>
+              <span class="input-wrap">
+                <svg aria-hidden="true"><use href="#i-search"></use></svg>
+                <input type="search" id="vendorSearch" placeholder="Name, email or phone" />
+              </span>
+            </div>
+            <div class="table-scroll" style="margin-top:12px">
+              <table class="data-table">
+                <thead>
+                  <tr><th scope="col">Name</th><th scope="col">Contact</th><th scope="col">Phone</th>
+                  <th class="num" scope="col">Bills</th><th class="num" scope="col">Outstanding</th>
+                  <th class="actions-col" scope="col">Actions</th></tr>
+                </thead>
+                <tbody id="vendorBody"><tr><td colspan="6"><div class="loading-row"><span class="spinner"></span>Loading vendors…</div></td></tr></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="vendorsEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-truck"></use></svg>
+              <h3>No vendors yet</h3>
+              <p>Add a supplier to start recording bills and payables.</p>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: INVOICES
+             ============================================================ -->
+        <section class="view" id="view-invoices" data-view="invoices" aria-label="Invoices">
+          <div class="stat-grid stat-grid-4">
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Invoices</span></div><p class="stat-value" id="invStatCount">0</p><p class="stat-note">In this filter</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Invoiced</span></div><p class="stat-value" id="invStatTotal">₹0</p><p class="stat-note">Total value</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Collected</span></div><p class="stat-value is-income" id="invStatPaid">₹0</p><p class="stat-note">Payments recorded</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Outstanding</span></div><p class="stat-value is-expense" id="invStatOutstanding">₹0</p><p class="stat-note" id="invStatOverdue">—</p></article>
+          </div>
+
+          <article class="card filters-card">
+            <div class="card-head">
+              <div><h2>Invoices</h2><p class="card-sub">Status is calculated from payments and the due date.</p></div>
+              <button class="btn btn-primary btn-sm" type="button" id="newInvoiceBtn">
+                <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>New invoice</span>
+              </button>
+            </div>
+            <form class="filters filters-5" id="invoiceFilterForm">
+              <div class="field field-search">
+                <label for="invSearch">Search</label>
+                <span class="input-wrap"><svg aria-hidden="true"><use href="#i-search"></use></svg>
+                  <input type="search" id="invSearch" placeholder="Number, customer or notes" /></span>
+              </div>
+              <div class="field"><label for="invStatus">Status</label>
+                <select id="invStatus">
+                  <option value="all">All statuses</option>
+                  <option value="draft">Draft</option>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="partially_paid">Partially paid</option>
+                  <option value="paid">Paid</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="field"><label for="invCustomer">Customer</label><select id="invCustomer"><option value="">All customers</option></select></div>
+              <div class="field"><label for="invFrom">From</label><input type="date" id="invFrom" /></div>
+              <div class="field"><label for="invTo">To</label><input type="date" id="invTo" /></div>
+            </form>
+          </article>
+
+          <article class="card">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th scope="col">Invoice</th><th scope="col">Customer</th><th scope="col">Date</th>
+                  <th scope="col">Due</th><th scope="col">Status</th><th class="num" scope="col">Total</th>
+                  <th class="num" scope="col">Balance</th><th class="actions-col" scope="col">Actions</th></tr>
+                </thead>
+                <tbody id="invoiceBody"><tr><td colspan="8"><div class="loading-row"><span class="spinner"></span>Loading invoices…</div></td></tr></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="invoicesEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-file"></use></svg>
+              <h3 id="invoicesEmptyTitle">No invoices yet</h3>
+              <p id="invoicesEmptyText">Create your first invoice to start tracking what customers owe you.</p>
+              <button class="btn btn-primary btn-sm" type="button" data-action="new-invoice">Create an invoice</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: BILLS & PAYABLES
+             ============================================================ -->
+        <section class="view" id="view-bills" data-view="bills" aria-label="Bills and payables">
+          <div class="stat-grid stat-grid-4">
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Bills</span></div><p class="stat-value" id="billStatCount">0</p><p class="stat-note">In this filter</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Billed</span></div><p class="stat-value" id="billStatTotal">₹0</p><p class="stat-note">Total value</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Paid</span></div><p class="stat-value is-income" id="billStatPaid">₹0</p><p class="stat-note">Payments made</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Outstanding</span></div><p class="stat-value is-expense" id="billStatOutstanding">₹0</p><p class="stat-note" id="billStatOverdue">—</p></article>
+          </div>
+
+          <article class="card filters-card">
+            <div class="card-head">
+              <div><h2>Bills &amp; Payables</h2><p class="card-sub">What you owe vendors, based on recorded payments.</p></div>
+              <button class="btn btn-primary btn-sm" type="button" id="newBillBtn">
+                <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>Record bill</span>
+              </button>
+            </div>
+            <form class="filters filters-5" id="billFilterForm">
+              <div class="field field-search">
+                <label for="billSearch">Search</label>
+                <span class="input-wrap"><svg aria-hidden="true"><use href="#i-search"></use></svg>
+                  <input type="search" id="billSearch" placeholder="Bill number, vendor or description" /></span>
+              </div>
+              <div class="field"><label for="billStatus">Status</label>
+                <select id="billStatus">
+                  <option value="all">All statuses</option>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="partially_paid">Partially paid</option>
+                  <option value="paid">Paid</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="field"><label for="billVendor">Vendor</label><select id="billVendor"><option value="">All vendors</option></select></div>
+              <div class="field"><label for="billFrom">From</label><input type="date" id="billFrom" /></div>
+              <div class="field"><label for="billTo">To</label><input type="date" id="billTo" /></div>
+            </form>
+          </article>
+
+          <article class="card">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th scope="col">Bill</th><th scope="col">Vendor</th><th scope="col">Date</th>
+                  <th scope="col">Due</th><th scope="col">Status</th><th class="num" scope="col">Total</th>
+                  <th class="num" scope="col">Balance</th><th class="actions-col" scope="col">Actions</th></tr>
+                </thead>
+                <tbody id="billBody"><tr><td colspan="8"><div class="loading-row"><span class="spinner"></span>Loading bills…</div></td></tr></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="billsEmpty" hidden>
+              <svg aria-hidden="true"><use href="#i-receipt"></use></svg>
+              <h3>No bills recorded yet</h3>
+              <p>Record a bill you received from a vendor to track what you still owe.</p>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============================================================
+             VIEW: CASH FLOW
+             ============================================================ -->
+        <section class="view" id="view-cashflow" data-view="cashflow" aria-label="Cash flow">
+          <div class="stat-grid stat-grid-3">
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Money received</span></div><p class="stat-value is-income" id="cfIn">₹0</p><p class="stat-note">Invoice payments + income entries</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Money paid</span></div><p class="stat-value is-expense" id="cfOut">₹0</p><p class="stat-note">Vendor payments + expense entries</p></article>
+            <article class="card stat-card"><div class="stat-top"><span class="stat-label">Net cash flow</span></div><p class="stat-value" id="cfNet">₹0</p><p class="stat-note" id="cfNetNote">Money received − money paid</p></article>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head"><div><h2>Cash Flow Report</h2><p class="card-sub">Only actual money movements are counted.</p></div></div>
+              <form class="filters filters-3" id="cashflowFilterForm">
+                <div class="field"><label for="cfFrom">From date</label><input type="date" id="cfFrom" /></div>
+                <div class="field"><label for="cfTo">To date</label><input type="date" id="cfTo" /></div>
+                <div class="field field-inline">
+                  <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+                  <a class="btn btn-ghost btn-sm" id="exportCashBtn" href="/api/business/export/transactions.csv" download>
+                    <svg aria-hidden="true"><use href="#i-download"></use></svg><span>CSV</span>
+                  </a>
+                </div>
+              </form>
+              <div class="cashflow-split">
+                <div class="cashflow-box">
+                  <span class="mini-label">Not yet received</span>
+                  <strong id="cfNotReceived">₹0</strong>
+                  <small>Unpaid invoices — this is <em>not</em> cash</small>
+                </div>
+                <div class="cashflow-box">
+                  <span class="mini-label">Not yet paid</span>
+                  <strong id="cfNotPaid">₹0</strong>
+                  <small>Unpaid bills — this is <em>not</em> cash</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div><h2>Movements</h2><p class="card-sub" id="cfEntriesSub">Newest first</p></div></div>
+              <div class="table-scroll" style="max-height:420px;overflow-y:auto">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Date</th><th scope="col">Description</th><th scope="col">Source</th><th class="num" scope="col">Amount</th></tr></thead>
+                  <tbody id="cfEntriesBody"><tr><td colspan="4"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: BUSINESS REPORTS (tax + exports)
+             ============================================================ -->
+        <section class="view" id="view-business-reports" data-view="business-reports" aria-label="Business reports">
+          <div class="notice-banner notice-warning">
+            <svg aria-hidden="true"><use href="#i-warning"></use></svg>
+            <div>
+              <strong>Estimates for your records — not tax or legal advice.</strong>
+              <span id="taxDisclaimer">SmartSpend does not decide which of your expenses are tax deductible, and it applies only the tax rates you enter yourself.</span>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:18px">
+            <div class="card-head">
+              <div><h2>Report Range</h2><p class="card-sub">Applies to every table and export below.</p></div>
+              <div class="inline-actions">
+                <a class="btn btn-ghost btn-sm" id="exportBizTxBtn" href="/api/business/export/transactions.csv" download>
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Transactions</span>
+                </a>
+                <a class="btn btn-ghost btn-sm" id="exportBizInvBtn" href="/api/business/export/invoices.csv" download>
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Invoices</span>
+                </a>
+                <a class="btn btn-ghost btn-sm" id="exportBizBillBtn" href="/api/business/export/bills.csv" download>
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Bills</span>
+                </a>
+                <a class="btn btn-ghost btn-sm" id="exportBizTaxBtn" href="/api/business/export/tax-report.csv" download>
+                  <svg aria-hidden="true"><use href="#i-download"></use></svg><span>Tax report</span>
+                </a>
+              </div>
+            </div>
+            <form class="filters filters-3" id="bizReportFilterForm">
+              <div class="field"><label for="bizReportFrom">From date</label><input type="date" id="bizReportFrom" /></div>
+              <div class="field"><label for="bizReportTo">To date</label><input type="date" id="bizReportTo" /></div>
+              <div class="field field-inline"><button class="btn btn-primary btn-sm" type="submit">Apply</button></div>
+            </form>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head"><div><h2>Expenses by Category (with tax)</h2><p class="card-sub" id="taxRangeSub">Selected range</p></div></div>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Category</th><th class="num" scope="col">Entries</th><th class="num" scope="col">Net</th><th class="num" scope="col">Tax</th><th class="num" scope="col">Total</th></tr></thead>
+                  <tbody id="taxBody"><tr><td colspan="5"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+              <p class="filter-summary" id="taxTotalsLine"></p>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div><h2>Payment Methods</h2><p class="card-sub">How customers pay and how you pay</p></div></div>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Method</th><th scope="col">Direction</th><th class="num" scope="col">Total</th><th class="num" scope="col">Entries</th></tr></thead>
+                  <tbody id="paymentMethodBody"><tr><td colspan="4"><div class="loading-row"><span class="spinner"></span>Loading…</div></td></tr></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW: SETTINGS
+             ============================================================ -->
+        <section class="view" id="view-settings" data-view="settings" aria-label="Settings">
+          <div class="grid grid-2">
+            <article class="card">
+              <div class="card-head"><div><h2>Workspace</h2><p class="card-sub">The finance book this mode is using.</p></div></div>
+              <form id="workspaceForm">
+                <div class="field">
+                  <label for="workspaceName">Workspace name</label>
+                  <input type="text" id="workspaceName" maxlength="80" />
+                </div>
+                <div class="field">
+                  <label for="workspaceType">Type</label>
+                  <input type="text" id="workspaceType" readonly />
+                  <p class="field-hint">The type decides which categories and features are available.</p>
+                </div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit">Save name</button></div>
+              </form>
+              <div class="helper-note" style="margin-top:16px">
+                <strong>Two separate things:</strong> <em>accounts</em> are real Supabase Auth (email +
+                password, one account per person). <em>The data</em> for both books still lives in the local
+                SQLite file, and the Individual/Business split is organisation, not security. Anyone who can
+                open this machine can read the database file.
+              </div>
+              <div class="form-actions" style="margin-top:14px">
+                <button class="btn btn-ghost" type="button" id="changePurposeBtn">
+                  <svg aria-hidden="true"><use href="#i-user"></use></svg>
+                  <span>Change my purpose</span>
+                </button>
+              </div>
+              <p class="field-hint">Reopens the welcome screen so you can pick Individual or Business again.</p>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div><h2>Database &amp; Migrations</h2><p class="card-sub">Schema version of expense-tracker.db</p></div></div>
+              <ul class="migration-list" id="migrationList"><li class="muted">Loading…</li></ul>
+              <p class="filter-summary" id="dbCounts"></p>
+            </article>
+          </div>
+
+          <!-- Supabase account: shown only when the app is opened with a session. -->
+          <article class="card" style="margin-top:18px" id="cloudCard">
+            <div class="card-head">
+              <div>
+                <h2>Account &amp; Cloud</h2>
+                <p class="card-sub">Signed in with Supabase Auth</p>
+              </div>
+              <span class="status-pill" id="cloudStatus" data-state="idle">checking…</span>
+            </div>
+
+            <div class="cloud-grid">
+              <div class="cloud-row">
+                <span class="mini-label">Signed in as</span>
+                <strong id="cloudEmail">—</strong>
+              </div>
+              <div class="cloud-row">
+                <span class="mini-label">Email confirmed</span>
+                <strong id="cloudConfirmed">—</strong>
+              </div>
+              <div class="cloud-row">
+                <span class="mini-label">Profile row</span>
+                <strong id="cloudProfileState">—</strong>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:14px">
+              <label for="cloudDisplayName">Display name in your Supabase profile</label>
+              <input type="text" id="cloudDisplayName" maxlength="60" placeholder="Aarav" />
+              <p class="field-hint" id="cloudHint">
+                Stored in the <code>profiles</code> table, readable only by your account.
+              </p>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="button" id="cloudSaveBtn">Save profile</button>
+              <button class="btn btn-ghost" type="button" id="cloudReloadBtn">Reload from cloud</button>
+            </div>
+
+            <div class="helper-note" style="margin-top:16px">
+              <strong>What lives where:</strong> your transactions, budgets, invoices and bills are still
+              in the local SQLite file on the machine running the server. This card proves the Supabase
+              connection (login, <code>profiles</code> table, storage bucket) works. Moving the finance
+              tables themselves into Supabase is the next step — see <code>docs/SUPABASE.md</code>.
+            </div>
+          </article>
+
+          <article class="card" style="margin-top:18px">
+            <div class="card-head"><div><h2>How the two modes differ</h2><p class="card-sub">What belongs where</p></div></div>
+            <div class="compare-grid">
+              <div>
+                <h3>Individual</h3>
+                <ul class="plain-list">
+                  <li>Personal income and expenses with personal categories</li>
+                  <li>One monthly spending budget plus optional per-category budgets</li>
+                  <li>Savings goals funded by contributions</li>
+                  <li>Recurring expenses and upcoming expected payments</li>
+                  <li>Monthly reports and CSV export</li>
+                </ul>
+              </div>
+              <div>
+                <h3>Business</h3>
+                <ul class="plain-list">
+                  <li>Revenue and business expenses with business categories</li>
+                  <li>Customers and vendors</li>
+                  <li>Invoices with line items, payments and derived status</li>
+                  <li>Vendor bills and payables</li>
+                  <li>Cash-flow and tax reports, CSV export</li>
+                </ul>
+              </div>
+            </div>
+            <p class="helper-note" style="margin-top:14px">
+              Data never crosses modes: every row carries a <code>workspace_id</code>, and every API
+              query is filtered by it.
+            </p>
+          </article>
+        </section>
+
+      </main>
+
+      <footer class="app-footer">
+        <span>SmartSpend · B.Tech CSE Mini Project · Data stored locally in SQLite</span>
+        <span class="footer-dot">•</span>
+        <span>Not intended for real financial record-keeping</span>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       ADD / EDIT TRANSACTION DIALOG
+       Native <dialog> gives us focus trapping, Esc-to-close and a backdrop
+       for free — good accessibility with very little code.
+       =================================================================== -->
+  <dialog class="dialog" id="txDialog" aria-labelledby="txDialogTitle">
+    <form id="txForm" class="dialog-form" novalidate>
+      <header class="dialog-head">
+        <div>
+          <h2 id="txDialogTitle">Add Transaction</h2>
+          <p class="card-sub" id="txDialogSub">Record an income or an expense.</p>
+        </div>
+        <button class="icon-btn" type="button" id="dialogClose" aria-label="Close dialog">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+
+      <div class="dialog-body">
+        <fieldset class="type-toggle">
+          <legend class="sr-only">Transaction type</legend>
+          <label class="type-option">
+            <input type="radio" name="type" value="expense" checked />
+            <span><svg aria-hidden="true"><use href="#i-expense"></use></svg>Expense</span>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="type" value="income" />
+            <span><svg aria-hidden="true"><use href="#i-income"></use></svg>Income</span>
+          </label>
+        </fieldset>
+
+        <div class="field">
+          <label for="txTitle">Title <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="txTitle" name="title" maxlength="100" placeholder="e.g. Canteen lunch" required />
+          <p class="field-error" id="txTitleError" role="alert"></p>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="txAmount">Amount (₹) <span class="req" aria-hidden="true">*</span></label>
+            <input type="number" id="txAmount" name="amount" min="0.01" step="0.01" placeholder="0.00" required />
+            <p class="field-error" id="txAmountError" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="txCategory">Category <span class="req" aria-hidden="true">*</span></label>
+            <select id="txCategory" name="category" required>
+              <option value="">Select a category</option>
+            </select>
+            <p class="field-error" id="txCategoryError" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="txDate">Transaction date <span class="req" aria-hidden="true">*</span></label>
+          <input type="date" id="txDate" name="transaction_date" required />
+          <p class="field-error" id="txDateError" role="alert"></p>
+        </div>
+
+        <!-- Business-only fields: shown automatically in Business mode -->
+        <div class="biz-only" data-biz-field="payment_method">
+          <div class="field-row">
+            <div class="field">
+              <label for="txPaymentMethod">Payment method</label>
+              <select id="txPaymentMethod" name="payment_method">
+                <option value="">Not specified</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="txTaxRate">Tax rate (%)</label>
+              <input type="number" id="txTaxRate" name="tax_rate" min="0" max="100" step="0.01" placeholder="0" />
+              <p class="field-hint">Optional. Used for the tax report only.</p>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="txCustomer">Customer</label>
+              <select id="txCustomer" name="customer_id"><option value="">No customer</option></select>
+            </div>
+            <div class="field">
+              <label for="txVendor">Vendor</label>
+              <select id="txVendor" name="vendor_id"><option value="">No vendor</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="txNotes">Notes <span class="optional">(optional)</span></label>
+          <textarea id="txNotes" name="notes" rows="3" maxlength="500" placeholder="Anything you want to remember about this entry"></textarea>
+          <div class="field-meta"><span class="field-hint">Up to 500 characters.</span><span class="char-count" id="notesCount">0 / 500</span></div>
+          <p class="field-error" id="txNotesError" role="alert"></p>
+        </div>
+
+        <p class="form-error-banner" id="txFormError" role="alert" hidden></p>
+      </div>
+
+      <footer class="dialog-foot">
+        <button class="btn btn-ghost" type="button" id="dialogCancel">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="txSubmitBtn">Save Transaction</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- ===================================================================
+       CONFIRMATION DIALOG (used for delete)
+       =================================================================== -->
+  <dialog class="dialog dialog-sm" id="confirmDialog" aria-labelledby="confirmTitle">
+    <div class="dialog-form">
+      <header class="dialog-head">
+        <div>
+          <h2 id="confirmTitle">Delete transaction?</h2>
+          <p class="card-sub" id="confirmText">This action cannot be undone.</p>
+        </div>
+        <button class="icon-btn" type="button" id="confirmClose" aria-label="Close dialog">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+      <footer class="dialog-foot">
+        <button class="btn btn-ghost" type="button" id="confirmCancel">Cancel</button>
+        <button class="btn btn-danger" type="button" id="confirmOk">Delete</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- ===================================================================
+       INVOICE EDITOR DIALOG
+       =================================================================== -->
+  <dialog class="dialog dialog-wide" id="invoiceDialog" aria-labelledby="invoiceDialogTitle">
+    <form id="invoiceForm" class="dialog-form" novalidate>
+      <header class="dialog-head">
+        <div>
+          <h2 id="invoiceDialogTitle">New Invoice</h2>
+          <p class="card-sub" id="invoiceDialogSub">Totals are calculated on the server.</p>
+        </div>
+        <button class="icon-btn" type="button" id="invoiceDialogClose" aria-label="Close dialog">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+
+      <div class="dialog-body">
+        <div class="field-row">
+          <div class="field">
+            <label for="invNumber">Invoice number <span class="req">*</span></label>
+            <input type="text" id="invNumber" maxlength="40" required />
+            <p class="field-error" id="invNumberError" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="invCustomerSelect">Customer <span class="req">*</span></label>
+            <select id="invCustomerSelect" required><option value="">Select a customer</option></select>
+            <p class="field-error" id="invCustomerError" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="invDate">Invoice date <span class="req">*</span></label>
+            <input type="date" id="invDate" required />
+            <p class="field-error" id="invDateError" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="invDueDate">Due date <span class="req">*</span></label>
+            <input type="date" id="invDueDate" required />
+            <p class="field-error" id="invDueError" role="alert"></p>
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Line items</h3>
+        <div class="table-scroll">
+          <table class="data-table line-items-table">
+            <thead>
+              <tr><th scope="col">Description</th><th class="num" scope="col" style="width:90px">Qty</th>
+              <th class="num" scope="col" style="width:130px">Unit price (₹)</th>
+              <th class="num" scope="col" style="width:90px">Tax %</th>
+              <th class="num" scope="col" style="width:110px">Line total</th>
+              <th scope="col" style="width:44px"></th></tr>
+            </thead>
+            <tbody id="invoiceItemsBody"></tbody>
+          </table>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" id="addLineBtn" style="margin-top:10px">
+          <svg aria-hidden="true"><use href="#i-plus"></use></svg><span>Add line item</span>
+        </button>
+        <p class="field-error is-visible" id="invoiceItemsError" role="alert" style="display:none"></p>
+
+        <div class="invoice-totals-preview" id="invoiceTotalsPreview">
+          <div><span>Subtotal</span><strong id="previewSubtotal">₹0</strong></div>
+          <div><span>Tax</span><strong id="previewTax">₹0</strong></div>
+          <div class="grand"><span>Total</span><strong id="previewTotal">₹0</strong></div>
+          <p class="field-hint" id="previewNote">Preview only — the server recalculates and stores these totals.</p>
+        </div>
+
+        <div class="field">
+          <label for="invNotes">Notes <span class="optional">(optional)</span></label>
+          <textarea id="invNotes" rows="2" maxlength="500"></textarea>
+        </div>
+        <div class="field">
+          <label class="switch-label"><input type="checkbox" id="invIsDraft" /> Save as draft (no payments can be recorded yet)</label>
+        </div>
+        <p class="form-error-banner" id="invoiceFormError" role="alert" hidden></p>
+      </div>
+
+      <footer class="dialog-foot">
+        <button class="btn btn-ghost" type="button" id="invoiceDialogCancel">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="invoiceSubmitBtn">Save Invoice</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- ===================================================================
+       INVOICE VIEWER (details, payments, print)
+       =================================================================== -->
+  <dialog class="dialog dialog-wide" id="invoiceViewDialog" aria-labelledby="invoiceViewTitle">
+    <div class="dialog-form">
+      <header class="dialog-head no-print">
+        <div>
+          <h2 id="invoiceViewTitle">Invoice</h2>
+          <p class="card-sub" id="invoiceViewSub">—</p>
+        </div>
+        <button class="icon-btn" type="button" id="invoiceViewClose" aria-label="Close dialog">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+
+      <div class="dialog-body" id="invoicePrintArea"></div>
+
+      <footer class="dialog-foot no-print">
+        <button class="btn btn-ghost" type="button" id="invoicePrintBtn">
+          <svg aria-hidden="true"><use href="#i-print"></use></svg><span>Print / Save as PDF</span>
+        </button>
+        <button class="btn btn-primary" type="button" id="invoicePayBtn">Record payment</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- ===================================================================
+       PAYMENT DIALOG (invoice or vendor bill)
+       =================================================================== -->
+  <dialog class="dialog dialog-sm" id="paymentDialog" aria-labelledby="paymentTitle">
+    <form id="paymentForm" class="dialog-form" novalidate>
+      <header class="dialog-head">
+        <div>
+          <h2 id="paymentTitle">Record payment</h2>
+          <p class="card-sub" id="paymentSub">—</p>
+        </div>
+        <button class="icon-btn" type="button" id="paymentClose" aria-label="Close dialog">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+      <div class="dialog-body">
+        <div class="payment-balance" id="paymentBalance"></div>
+        <div class="field">
+          <label for="paymentAmount">Amount (₹) <span class="req">*</span></label>
+          <input type="number" id="paymentAmount" min="0.01" step="0.01" required />
+          <p class="field-error" id="paymentAmountError" role="alert"></p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="paymentDate">Payment date <span class="req">*</span></label>
+            <input type="date" id="paymentDate" required />
+            <p class="field-error" id="paymentDateError" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="paymentMethod">Method</label>
+            <select id="paymentMethod">
+              <option value="cash">Cash</option><option value="upi">UPI</option>
+              <option value="card">Card</option><option value="bank_transfer">Bank transfer</option>
+              <option value="cheque">Cheque</option><option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="paymentReference">Reference <span class="optional">(optional)</span></label>
+          <input type="text" id="paymentReference" maxlength="80" placeholder="UPI / cheque / NEFT number" />
+        </div>
+        <p class="form-error-banner" id="paymentFormError" role="alert" hidden></p>
+      </div>
+      <footer class="dialog-foot">
+        <button class="btn btn-ghost" type="button" id="paymentCancel">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="paymentSubmit">Save payment</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- ===================================================================
+       GENERIC FORM DIALOG (customer, vendor, bill, goal, recurring rule)
+       Fields are built by app JS so one dialog serves every simple form.
+       =================================================================== -->
+  <dialog class="dialog" id="formDialog" aria-labelledby="formDialogTitle">
+    <form id="genericForm" class="dialog-form" novalidate>
+      <header class="dialog-head">
+        <div>
+          <h2 id="formDialogTitle">Form</h2>
+          <p class="card-sub" id="formDialogSub">—</p>
+        </div>
+        <button class="icon-btn" type="button" id="formDialogClose" aria-label="Close dialog">
+          <svg aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+      <div class="dialog-body" id="formDialogBody"></div>
+      <footer class="dialog-foot">
+        <button class="btn btn-ghost" type="button" id="formDialogCancel">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="formDialogSubmit">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Toast notifications -->
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+
+  <noscript>
+    <div class="noscript">SmartSpend needs JavaScript enabled to load your data from the local server.</div>
+  </noscript>
+
+  <!-- app.js holds the shared core (state, API, helpers, personal views).
+       The other files extend the global `SS` object it exposes. Load order matters. -->
+  <!-- Supabase session: config + client + route guard must load first. -->
+  <script src="/js/safe-storage.js"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/auth-guard.js"></script>
+
+  <script src="app.js"></script>
+  <script src="js/business.js"></script>
+  <script src="js/invoices.js"></script>
+  <script src="js/personal-extras.js"></script>
+  <script src="/js/cloud.js"></script>
+</body>
+</html>

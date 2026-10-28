@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in · SmartSpend</title>
+  <meta name="description" content="Sign in to SmartSpend — your personal and business finance tracker." />
+  <meta name="theme-color" content="#312e81" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="auth-body">
+  <a class="skip-link" href="#authMain">Skip to the form</a>
+
+  <main class="auth-shell" id="authMain">
+    <!-- ------------------------------- Left: the pitch ------------------------------- -->
+    <section class="auth-aside" aria-label="About SmartSpend">
+      <div class="auth-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z" />
+            <circle cx="12" cy="12" r="2.6" />
+            <path d="M12 9.4V7.6M12 16.4v-1.8M9.4 12H7.6M16.4 12h-1.8" />
+          </svg>
+        </span>
+        <span>
+          <strong>SmartSpend</strong>
+          <small>Your money, clearly organised.</small>
+        </span>
+      </div>
+
+      <h1>Two books.<br />One clear picture.</h1>
+      <p class="auth-lead">
+        Personal budgets, savings goals and recurring bills — plus invoices, customers and cash flow
+        for a small business. Your account follows you; the money data still lives in SQLite on the
+        machine running the server.
+      </p>
+
+      <ul class="auth-points">
+        <li><span aria-hidden="true">✓</span> Your rows are private to your account (Row Level Security)</li>
+        <li><span aria-hidden="true">✓</span> Individual and Business books never mix</li>
+        <li><span aria-hidden="true">✓</span> Amounts stored in paise, so totals never drift</li>
+      </ul>
+
+      <p class="auth-fineprint">
+        SmartSpend is a college mini project. Sign-in is real (Supabase Auth), but it is not a
+        production security review — do not store real bank credentials here.
+      </p>
+    </section>
+
+    <!-- ------------------------------- Right: the form ------------------------------- -->
+    <section class="auth-card" aria-labelledby="authTitle">
+      <!-- Shown by login.js only when the browser refuses localStorage. -->
+      <p class="auth-notice" id="storageNotice" role="status" hidden></p>
+
+      <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
+        <button type="button" class="auth-tab is-active" id="tabSignIn" role="tab"
+                aria-selected="true" aria-controls="panelSignIn" data-panel="signin">Sign in</button>
+        <button type="button" class="auth-tab" id="tabSignUp" role="tab"
+                aria-selected="false" aria-controls="panelSignUp" data-panel="signup">Create account</button>
+      </div>
+
+      <!-- Shared status area: errors in red, information in blue. -->
+      <div class="auth-alert" id="authAlert" role="alert" hidden></div>
+
+      <!-- ---------------------------------- Sign in ---------------------------------- -->
+      <form class="auth-form" id="panelSignIn" role="tabpanel" aria-labelledby="tabSignIn" novalidate>
+        <div class="field">
+          <label for="signInEmail">Email</label>
+          <input type="email" id="signInEmail" name="email" autocomplete="email"
+                 placeholder="you@example.com" required />
+        </div>
+
+        <div class="field">
+          <label for="signInPassword">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="signInPassword" name="password" autocomplete="current-password"
+                   placeholder="Your password" required />
+            <button type="button" class="password-toggle" data-target="signInPassword"
+                    aria-label="Show password" aria-pressed="false">Show</button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary auth-submit" type="submit" id="signInSubmit">
+          <span class="auth-submit-label">Sign in</span>
+        </button>
+
+        <button type="button" class="link-btn auth-forgot" id="forgotPassword">Forgot your password?</button>
+      </form>
+
+      <!-- ------------------------------- Create account ------------------------------ -->
+      <form class="auth-form" id="panelSignUp" role="tabpanel" aria-labelledby="tabSignUp" hidden novalidate>
+        <div class="field">
+          <label for="signUpName">Display name <span class="optional">(optional)</span></label>
+          <input type="text" id="signUpName" name="name" autocomplete="name" maxlength="60"
+                 placeholder="Aarav" />
+        </div>
+
+        <div class="field">
+          <label for="signUpEmail">Email</label>
+          <input type="email" id="signUpEmail" name="email" autocomplete="email"
+                 placeholder="you@example.com" required />
+        </div>
+
+        <div class="field">
+          <label for="signUpPassword">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="signUpPassword" name="password" minlength="6" autocomplete="new-password"
+                   placeholder="At least 8 characters" required />
+            <button type="button" class="password-toggle" data-target="signUpPassword"
+                    aria-label="Show password" aria-pressed="false">Show</button>
+          </div>
+          <p class="field-hint" id="passwordHint">At least 6 characters. Longer is stronger — try a passphrase.</p>
+        </div>
+
+        <button class="btn btn-primary auth-submit" type="submit" id="signUpSubmit">
+          <span class="auth-submit-label">Create account</span>
+        </button>
+
+        <p class="field-hint">
+          By creating an account you agree that this is a demo project, and that its figures are
+          bookkeeping estimates — not audited statements or tax advice.
+        </p>
+      </form>
+
+      <!-- --------------------------------- Local mode -------------------------------- -->
+      <div class="auth-divider"><span>or</span></div>
+
+      <button class="btn btn-ghost auth-local" type="button" id="localModeBtn">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="14" rx="2.5" />
+          <path d="M3 9h18M8 18v2h8v-2" />
+        </svg>
+        <span>Continue without an account</span>
+      </button>
+      <p class="field-hint auth-local-hint">
+        Opens the app with no account, using the SQLite file on the machine running the server
+        (<code>expense-tracker.db</code>). Nothing is uploaded — and no figure appears in another browser.
+      </p>
+
+      <p class="auth-footer">
+        <span id="supabaseStatus">Checking Supabase…</span>
+      </p>
+    </section>
+  </main>
+
+  <!-- Build stamp so you can tell which file you are looking at. -->
+  <script src="/js/safe-storage.js"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>
